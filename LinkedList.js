@@ -150,13 +150,12 @@ class LinkedList {
     let result = [];
     let current = this.head;
     while (current) {
-      result.push(current.data.name);
+      result.push(current.data.getName()); // Use getName() instead of .name
       current = current.next;
     }
     const output = result.join(', ');
     console.log(output);
     return output;
-    
   }
   /**
    * REQUIRES:  None
