@@ -49,6 +49,10 @@ async function handleCommand(command) {
         // --------> WRITE YOUR CODE BELOW
 
         // --------> WRITE YOUR CODE ABOVE
+        const newStudent = new Student(name, parseInt(year), email, specialization);
+        studentManagementSystem.addStudent(newStudent);
+        studentManagementSystem.displayStudents();
+
         break;
 
     case 'remove':
@@ -64,6 +68,10 @@ async function handleCommand(command) {
       // --------> WRITE YOUR CODE BELOW
       
       // --------> WRITE YOUR CODE ABOVE
+      const [removeEmail] = args;
+      studentManagementSystem.removeStudent(removeEmail);
+      studentManagementSystem.displayStudents();
+
       break;
 
     case 'display':
@@ -77,6 +85,7 @@ async function handleCommand(command) {
       // --------> WRITE YOUR CODE BELOW
 
       // --------> WRITE YOUR CODE ABOVE
+      studentManagementSystem.displayStudents();
       break;
 
     case 'find':
@@ -93,6 +102,14 @@ async function handleCommand(command) {
       // --------> WRITE YOUR CODE BELOW
       
       // --------> WRITE YOUR CODE ABOVE
+      const [findEmail] = args;
+      const student = studentManagementSystem.findStudent(findEmail);
+        if (student !== -1) {
+          student.display(); 
+        } else {
+          console.log("Student does not exist");
+        }
+
       break;
 
     case 'save':
@@ -108,6 +125,9 @@ async function handleCommand(command) {
       // --------> WRITE YOUR CODE BELOW
 
       // --------> WRITE YOUR CODE ABOVE
+      const [saveFileName] = args;
+      await studentManagementSystem.saveToJson(saveFileName);
+      break;
 
     case "load":
       /**
@@ -122,6 +142,10 @@ async function handleCommand(command) {
       // --------> WRITE YOUR CODE BELOW
 
       // --------> WRITE YOUR CODE ABOVE
+      const [loadFileName] = args;
+      await studentManagementSystem.loadFromJSON(loadFileName);
+      studentManagementSystem.displayStudents();
+
       break;
 
     case 'clear':
@@ -136,6 +160,7 @@ async function handleCommand(command) {
       // --------> WRITE YOUR CODE BELOW
 
       // --------> WRITE YOUR CODE ABOVE
+      studentManagementSystem.clear();
       break;
 
     case 'q':
@@ -162,3 +187,4 @@ rl.on('line', async (input) => {
 rl.on('close', () => {
   console.log('Goodbye!');
 });
+
