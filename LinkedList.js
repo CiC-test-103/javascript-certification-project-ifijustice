@@ -1,6 +1,6 @@
 // Necessary Imports (you will need to use this)
 const { Student } = require('./Student')
-const fs = require('fs').promises;
+const fs = require('fs/promises')
 
 
 /**
@@ -76,29 +76,23 @@ class LinkedList {
    * - Think about the null case
    * - Think about how removal might update head or tail
    */
-  removeStudent(email) {
-    if (this.head === null) return;
+    removeStudent(email) {
+    if (!this.head) return;
 
-    if (this.head.data.email === email) {
+    if (this.head.data.getEmail() === email) {
       this.head = this.head.next;
-      if (this.head === null) {
-        this.tail = null;
-      }
       this.length--;
       return;
     }
 
     let current = this.head;
-    while (current.next !== null && current.next.data.email !== email) {
-      current = current.next;
-    }
-
-    if (current.next !== null) {
-      current.next = current.next.next;
-      if (current.next === null) {
-        this.tail = current;
+    while (current.next) {
+      if (current.next.data.getEmail() === email) {
+        current.next = current.next.next;
+        this.length--;
+        return;
       }
-      this.length--;
+      current = current.next;
     }
   }
 
@@ -108,17 +102,17 @@ class LinkedList {
      * RETURNS:   The Student or -1 if not found
      */
   
-  findStudent(email){
-    // TODO
+    findStudent(email) {
     let current = this.head;
-    while (current !== null) {
-      if (current.data.email === email) {
+    while (current) {
+      if (current.data.getEmail() === email) {
         return current.data;
       }
       current = current.next;
     }
-    return -1;
+    return -1; 
   }
+
 
 
   /**
@@ -146,11 +140,10 @@ class LinkedList {
    *  - Output should appear as: "JohnDoe, JaneDoe"
    */
   displayStudents() {
-    // TODO
     let result = [];
     let current = this.head;
     while (current) {
-      result.push(current.data.getName()); // Use getName() instead of .name
+      result.push(current.data.getName()); 
       current = current.next;
     }
     const output = result.join(', ');
@@ -173,20 +166,18 @@ class LinkedList {
    * CONSIDERATIONS:
    * - Use sortStudentsByName()
    */
-  filterBySpecialization(specialization) {
-    // TODO
-    const matched = [];
+    filterBySpecialization(spec) {
     let current = this.head;
-
+    const result = [];
     while (current) {
-      if (current.data.specialization === specialization) {
-        matched.push(current.data);
+      if (current.data.getSpecialization() === spec) {
+        result.push(current.data);
       }
       current = current.next;
     }
-
-  return this.sortStudentsByName(matched);
+    return result;
   }
+
   
 
   /**
@@ -217,20 +208,22 @@ class LinkedList {
    * RETURNS:   None
    */
   async saveToJson(fileName) {
-    // TODO
     const students = [];
     let current = this.head;
     while (current) {
-      students.push(current.data);
+      students.push({
+        name: current.data.getName(),
+        year: current.data.getYear(),
+        email: current.data.getEmail(),
+        specialization: current.data.getSpecialization()
+      });
       current = current.next;
     }
-    try {
-      await fs.writeFile(fileName, JSON.stringify(students, null, 2), 'utf-8');
-      console.log(`Saved ${students.length} students to ${fileName}`);
-    } catch (err) {
-      console.error("Error saving to JSON file:", err.message);
-    }
+
+    await fs.writeFile(fileName, JSON.stringify(students, null, 2));
+    console.log(`Saved ${students.length} students to ${fileName}`);
   }
+
 
   /**
     * REQUIRES:  A valid file name (String) that exists
@@ -240,23 +233,25 @@ class LinkedList {
     *  - Use clearStudents() to perform overwriting
     */
   async loadFromJSON(fileName) {
-    // TODO
-    try{
-      const fileContent = await fs.readFile(fileName, 'utf-8');
-      const studentArray = JSON.parse(fileContent);
-      this.#clearStudents();
-      for (const s of studentArray) {
+    try {
+      const data = await fs.readFile(fileName, 'utf8');
+      const students = JSON.parse(data);
+
+      this.head = null;
+      this.length = 0;
+
+      for (const s of students) {
         const student = new Student(s.name, s.year, s.email, s.specialization);
         this.addStudent(student);
       }
 
-      console.log(`Loaded ${studentArray.length} students from ${fileName}`);
-    
-    }catch (error) {
-      console.error(`Failed to load from ${fileName}:`, error.message);
+      console.log(`Loaded ${students.length} students from ${fileName}`);
+    } catch (err) {
+      console.error("Failed to load JSON:", err.message);
     }
-    
   }
+
+
 
 
 }
